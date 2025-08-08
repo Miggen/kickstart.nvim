@@ -11,7 +11,7 @@ return {
   },
   lazy = false,
   keys = {
-    { '\\', ':Neotree reveal<CR>', desc = 'NeoTree reveal', silent = true },
+    { '\\', ':Neotree reveal reveal_force_cwd<CR>', desc = 'NeoTree reveal', silent = true },
   },
   opts = {
     filesystem = {
@@ -19,6 +19,14 @@ return {
         mappings = {
           ['\\'] = 'close_window',
         },
+      },
+    },
+    event_handlers = {
+      {
+        event = 'file_opened',
+        handler = function(file_path)
+          require('neo-tree.command').execute { action = 'close' }
+        end,
       },
     },
   },

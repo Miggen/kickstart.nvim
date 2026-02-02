@@ -1,15 +1,18 @@
 -- ~/.config/nvim/lua/plugins/copilot.lua
 return {
   {
+    -- Copilot backend (Lua)
     'zbirenbaum/copilot.lua',
     cmd = 'Copilot',
+    build = ':Copilot auth',
     event = 'InsertEnter',
-    config = function()
-      require('copilot').setup {
-        -- If you will use nvim-cmp, disable these to avoid “double” UI
-        suggestion = { enabled = false },
-        panel = { enabled = false },
-      }
-    end,
+    opts = {
+      suggestion = { enabled = false }, --  turns OFF ghost text
+      panel = { enabled = false }, -- no side panel
+      filetypes = {
+        markdown = false,
+        help = false,
+      },
+    },
   },
 }

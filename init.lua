@@ -260,6 +260,7 @@ require('lazy').setup({
 
       -- Document existing key chains
       spec = {
+        { '<leader>a', group = 'Copilot' },
         { '<leader>s', group = '[S]earch' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>c', group = '[C]opy' },
@@ -813,6 +814,12 @@ require('lazy').setup({
             },
           },
           lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
+
+          path = {
+            enabled = function()
+              return vim.bo.filetype ~= 'copilot-chat'
+            end,
+          },
         },
       },
 

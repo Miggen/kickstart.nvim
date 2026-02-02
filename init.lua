@@ -121,8 +121,25 @@ vim.keymap.set('n', '<M-s>', ':tab split<CR>', { desc = 'Duplicate current buffe
 -- Keybinding to open this file
 vim.keymap.set('n', '<leader>ev', ':edit $MYVIMRC<CR>', { desc = '[E]dit [v]imrc' })
 
+-- Keybinding to write file without formatting
+vim.keymap.set('n', '<leader>wn', ':noautocmd write<CR>', { desc = '[W]rite [n]oformatting' })
+
 -- Keybinding to copy the path to the current buffer
 vim.keymap.set('n', '<leader>cp', ':let @+ = expand("%:p")<CR>', { desc = '[c]opy the [p]ath of the current buffer to clipboard' })
+vim.keymap.set('n', '<leader>cd', function()
+  local pos = vim.api.nvim_win_get_cursor(0)
+  local bufnr = vim.api.nvim_get_current_buf()
+  local line = pos[1] - 1 -- Lua is 1-indexed, diagnostics are 0-indexed
+  local diagnostics = vim.diagnostic.get(bufnr, { lnum = line })
+
+  if #diagnostics > 0 then
+    local msg = diagnostics[1].message
+    vim.fn.setreg('+', msg)
+    print('Copied diagnostic to clipboard: ' .. msg)
+  else
+    print 'No diagnostic found on this line.'
+  end
+end, { desc = 'Copy diagnostic under cursor to clipboard' })
 
 -- Make paste in visual mode not override the yank buffer
 vim.keymap.set('x', 'p', '"_dP', { noremap = true, silent = true })
@@ -168,13 +185,12 @@ rtp:prepend(lazypath)
 --
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
-
   {
     'NMAC427/guess-indent.nvim',
     lazy = false, -- disables lazy loading
     config = function()
-      require('guess-indent').setup({})
-    end
+      require('guess-indent').setup {}
+    end,
   },
 
   -- NOTE: Plugins can also be added by using a table,
@@ -250,6 +266,8 @@ require('lazy').setup({
         { '<leader>e', group = '[E]dit' },
         { '<leader>g', group = '[G]it', mode = { 'n', 'v' } },
         { '<leader>d', group = '[D]iffview' },
+        { '<leader>r', group = '[R]ename' },
+        { '<leader>w', group = '[W]rite' },
       },
     },
   },
@@ -475,6 +493,9 @@ require('lazy').setup({
           --  the definition of its *type*, not where it was *defined*.
           map('grt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype Definition')
 
+          --  the definition of its *type*, not where it was *defined*.
+          map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame variable')
+
           -- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
           ---@param client vim.lsp.Client
           ---@param method vim.lsp.protocol.Method
@@ -654,17 +675,17 @@ require('lazy').setup({
       },
     },
     opts = {
-      notify_on_error = false,
+      notify_on_error = true,
       format_on_save = function(bufnr)
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
+        local disable_filetypes = { c = false, cpp = false }
         if disable_filetypes[vim.bo[bufnr].filetype] then
           return nil
         else
           return {
-            timeout_ms = 500,
+            timeout_ms = 2000,
             lsp_format = 'fallback',
           }
         end
@@ -672,10 +693,32 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
+        -- python = { 'isort', 'black' },
+        -- python = { 'autopep8' },
+        python = { 'ruff_format', 'ruff_fix' },
+        c = { 'clang-format-20' },
+        cpp = { 'clang-format-20' },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
+      },
+      formatters = {
+        black = {
+          prepend_args = { '--line-length', '120' },
+        },
+        isort = {
+          prepend_args = { '--profile=black', '--fss', '--line-length', '120', '--force-single-line-imports' },
+        },
+        autopep8 = {
+          command = 'autopep8',
+          args = { '--max-line-length', '120', '-' },
+          stdin = true,
+        },
+        ruff = {
+          command = 'ruff',
+          args = { 'format', '-' },
+          stdin = true,
+        },
       },
     },
   },
@@ -876,7 +919,7 @@ require('lazy').setup({
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  -- require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.debug',
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',

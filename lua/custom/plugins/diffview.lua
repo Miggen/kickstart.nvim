@@ -17,6 +17,10 @@ return {
         diffview.open 'origin/main...HEAD'
       end, { desc = '[d]iffview [o]pen against origin/main' })
 
+      map('n', '<leader>dp', function()
+        diffview.open 'origin/master...HEAD'
+      end, { desc = '[d]iffview [o]pen against origin/master' })
+
       -- Close diffview
       map('n', '<leader>dc', function()
         diffview.close()

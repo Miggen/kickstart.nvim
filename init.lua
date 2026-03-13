@@ -260,7 +260,6 @@ require('lazy').setup({
 
       -- Document existing key chains
       spec = {
-        { '<leader>a', group = 'Copilot' },
         { '<leader>s', group = '[S]earch' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>c', group = '[C]opy' },
@@ -801,26 +800,9 @@ require('lazy').setup({
       },
 
       sources = {
-        -- default = { 'lsp', 'path', 'snippets', 'lazydev', 'copilot' },
         default = { 'lsp', 'path', 'snippets', 'lazydev' },
         providers = {
-          copilot = {
-            name = 'copilot',
-            module = 'blink-copilot',
-            async = true,
-            score_offset = 10, -- raise/lower priority vs LSP
-            opts = {
-              max_completions = 3,
-              debounce = 200,
-            },
-          },
           lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
-
-          path = {
-            enabled = function()
-              return vim.bo.filetype ~= 'copilot-chat'
-            end,
-          },
         },
       },
 

@@ -801,13 +801,14 @@ require('lazy').setup({
       },
 
       sources = {
-        default = { 'lsp', 'path', 'snippets', 'lazydev', 'copilot' },
+        -- default = { 'lsp', 'path', 'snippets', 'lazydev', 'copilot' },
+        default = { 'lsp', 'path', 'snippets', 'lazydev' },
         providers = {
           copilot = {
             name = 'copilot',
             module = 'blink-copilot',
             async = true,
-            score_offset = 100, -- raise/lower priority vs LSP
+            score_offset = 10, -- raise/lower priority vs LSP
             opts = {
               max_completions = 3,
               debounce = 200,

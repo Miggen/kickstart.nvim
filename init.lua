@@ -141,9 +141,6 @@ vim.keymap.set('n', '<leader>cd', function()
   end
 end, { desc = 'Copy diagnostic under cursor to clipboard' })
 
--- Make paste in visual mode not override the yank buffer
-vim.keymap.set('x', 'p', '"_dP', { noremap = true, silent = true })
-
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -262,7 +259,7 @@ require('lazy').setup({
       spec = {
         { '<leader>s', group = '[S]earch' },
         { '<leader>t', group = '[T]oggle' },
-        { '<leader>c', group = '[C]opy' },
+        { '<leader>c', group = '[C]odecompanion' },
         { '<leader>e', group = '[E]dit' },
         { '<leader>g', group = '[G]it', mode = { 'n', 'v' } },
         { '<leader>d', group = '[D]iffview' },
@@ -696,6 +693,7 @@ require('lazy').setup({
         -- python = { 'isort', 'black' },
         -- python = { 'autopep8' },
         python = { 'ruff_format', 'ruff_fix' },
+        -- python = { 'avp_black' }, -- matches Avp pre-commit hook (black --skip-string-normalization --line-length 120)
         c = { 'clang-format-20' },
         cpp = { 'clang-format-20' },
         --
@@ -717,6 +715,16 @@ require('lazy').setup({
         ruff = {
           command = 'ruff',
           args = { 'format', '-' },
+          stdin = true,
+        },
+        avp_black = {
+          command = 'black',
+          args = {
+            '--skip-string-normalization',
+            '--line-length',
+            '120',
+            '-',
+          },
           stdin = true,
         },
       },
